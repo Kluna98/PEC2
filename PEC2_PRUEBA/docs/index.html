@@ -268,17 +268,73 @@ $(document).ready(function () {
 </div>
 
 
-<p>Hello, Website!</p>
-<p>For more information about simple R Markdown websites, please read
-the documentation at <a
-href="https://bookdown.org/yihui/rmarkdown/rmarkdown-site.html"
-class="uri">https://bookdown.org/yihui/rmarkdown/rmarkdown-site.html</a>.</p>
-<p>Please also note that simple R Markdown sites are <em>not</em> based
-on <strong>blogdown</strong>. They are probably good for websites with
-only a few Rmd documents. For larger-scale and more sophisticated
-websites (such as blogs), you may want to use <strong>blogdown</strong>
-instead: <a href="https://github.com/rstudio/blogdown"
-class="uri">https://github.com/rstudio/blogdown</a>.</p>
+<p>El objetivo de esta actividad es crear tres pequeñas visualizaciones
+usando técnicas diferentes, en nuestro han sido: dot-density-map,
+cicular-dendrogram y UpSet (intersecting sets).</p>
+<div id="dot-density-map" class="section level1">
+<h1>Dot density map</h1>
+<p>Los mapas de densidad de puntos son una forma simple de mostrar las
+diferencias de densidad en las distirbuciiones geográficas en un
+territorio. Este tipo de visualizaciones fueron y son muy populares,
+debido a que es fácil de entender e, intuitivamente, podemos ver donde
+se agrupan los puntos (datos). Hay dos tipos de dot-density-map: los
+uno-a-uno-dot-density-map o uno-a-muchos-dot-density-maps. Un factor
+crítico de este tipo de visualización es que han de ser dibujados en un
+mapa que preserve el tamaño de las área, sino se puede llegar a
+distorsionar la densidad percibida de los puntos.</p>
+<p>Las ventajas de usar este tipo de visualización son: - se puede
+mapear simples conteos/ratios (por ejemplo, número de coches/coahes por
+km2) - los datos no necesitan tener vinculado a unidades de eneumeración
+- funcionan bien en blanco y negro (cuando solo tenemos una clase)</p>
+<p>Algunos ejemplos de conjuntos de datos donde podríamos usar este tipo
+de visualizaciçon: - distribución de McDonalds en USA (1 punto = 1
+McDonald) - número de personas, por comarca, Cataluña, 2020 (1 punto
+10000 personas) - densidad de población por raza/etnia en New York (1
+punto 100 personas)</p>
+<div class="figure">
+<img src="dotamapex.png" alt="A caption" width="100%" />
+<p class="caption">
+A caption
+</p>
+</div>
+<div id="limitaciones" class="section level2">
+<h2>Limitaciones</h2>
+<p>Los principales inconvenientes de esta visualización son: - es
+dificil recuperar datos en concreto - las ubicaciones de los puntos son
+al azar en una determinada zona</p>
+</div>
+<div id="tipo-de-datos" class="section level2">
+<h2>Tipo de datos</h2>
+<p>Los datos introducidos son cualitativos (por ejemplo, raza/etnia de
+una persona). Cada dato ha de estar vinculado a un dato geográfico, como
+la latitud y longitud.A parte, de los datos como tal es necesario tener
+un mapa como base para poder representar este tipo de datos.</p>
+<p>La cantidad de datos no es muy relevante, ya que se puede jugar con
+la agrupacion de mas de 1 dato en cada punto.</p>
+<pre class="r"><code>#if (!require(&quot;tidyverse&quot;)) install.packages(&quot;tidyverse&quot;)
+#if (!require(&quot;sf&quot;)) install.packages(&quot;sf&quot;)
+#if (!require(&quot;maps&quot;)) install.packages(&quot;maps&quot;)</code></pre>
+<pre class="r"><code>library(tidyverse) # metapackage of all tidyverse packages
+library(sf)
+library(maps)</code></pre>
+<pre class="r"><code>fastRest_raw &lt;- read.csv(&quot;FastFoodRestaurants.csv&quot;)
+fastRest &lt;- filter(fastRest_raw, longitude &gt; -150 &amp; longitude &lt; -50 &amp; latitude &gt; 23 &amp; latitude &lt; 55)
+states &lt;- st_as_sf(map(&quot;state&quot;, plot = FALSE, fill = TRUE))</code></pre>
+<pre class="r"><code>fig &lt;- function(width, height){
+     options(repr.plot.width = width, repr.plot.height = height)
+}
+fig(20,20)
+
+ggplot() + geom_sf(data=states)+ 
+  geom_point(data=fastRest,aes(x = longitude, y = latitude), color = &quot;red&quot;, alpha = 1/10)+
+   theme(legend.position = &quot;none&quot;) + 
+  ggtitle(&quot;Distribution of fast food restaurant in the USA&quot;) + theme(plot.title = element_text(hjust = 0.4)) + 
+  theme(panel.background = element_blank(), panel.grid = element_blank()) +
+  
+  theme(axis.ticks = element_blank(), axis.text = element_blank(), axis.title = element_blank())</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+</div>
+</div>
 
 
 

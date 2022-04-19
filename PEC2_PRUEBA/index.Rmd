@@ -37,13 +37,13 @@ Los datos introducidos son cualitativos (por ejemplo, raza/etnia de una persona)
 La cantidad de datos no es muy relevante, ya que se puede jugar con la agrupacion de mas de 1 dato en cada punto.
 
 ```{r}
-if (!require("tidyverse")) install.packages("tidyverse")
-if (!require("sf")) install.packages("sf")
-if (!require("maps")) install.packages("maps")
+#if (!require("tidyverse")) install.packages("tidyverse")
+#if (!require("sf")) install.packages("sf")
+#if (!require("maps")) install.packages("maps")
 ```
 
 
-```{r}
+```{r echo=TRUE, message=FALSE, warning=FALSE}
 library(tidyverse) # metapackage of all tidyverse packages
 library(sf)
 library(maps)
@@ -55,7 +55,7 @@ fastRest <- filter(fastRest_raw, longitude > -150 & longitude < -50 & latitude >
 states <- st_as_sf(map("state", plot = FALSE, fill = TRUE))
 ```
 
-axis.text = element_blank()
+
 ```{r}
 fig <- function(width, height){
      options(repr.plot.width = width, repr.plot.height = height)
