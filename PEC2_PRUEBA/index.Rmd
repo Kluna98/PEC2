@@ -146,12 +146,12 @@ heartData <- heartData[sample(1:300000, 5000), ]
 personas <- paste("persona",1:5000,sep="")
 rownames(heartData) <- personas
 
-heartData
+head(heartData,5)
 
 ```
 
 ```{r}
-set.seed(20190708)
+set.seed(200)
 genes <- paste("gene",1:1000,sep="")
 x <- list(
   HeartDisease = rownames(heartData[heartData$HeartDisease == 'Yes',]),

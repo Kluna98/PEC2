@@ -376,25 +376,26 @@ personas)</p>
 Aid to Underdeveloped Countries” de Kaggle, el link es: <a
 href="https://www.kaggle.com/code/shrutidandagi/clustering-of-the-countries-help-international/data"
 class="uri">https://www.kaggle.com/code/shrutidandagi/clustering-of-the-countries-help-international/data</a>.</p>
-<pre class="r"><code>dataDend &lt;- read.csv(&quot;Country-data.csv&quot;)[sample(1:167, 70), ] 
+<pre class="r"><code>set.seed(200)
+dataDend &lt;- read.csv(&quot;Country-data.csv&quot;)[sample(1:167, 70), ] 
 dataScale &lt;- dataDend[,2:10]</code></pre>
 <pre class="r"><code>dataScale &lt;- as.data.frame(scale(dataScale))  # Apply scale function
 rownames(dataScale) &lt;- dataDend$country
 head(dataScale)  </code></pre>
-<pre><code>##              child_mort    exports     health    imports      income  inflation
-## Brazil       -0.5349424 -1.1344890  0.6500625 -1.5711409 -0.02520221  0.1432550
-## India         0.4094399 -0.6796231 -1.0841035 -0.9114687 -0.59680620  0.2132793
-## Zambia        0.9978627 -0.1291972 -0.4407839 -0.7476285 -0.66082132  0.8299846
-## Romania      -0.7359263 -0.2973829 -0.5491692 -0.4070135  0.16174459 -0.4562514
-## South Africa  0.2859437 -0.4502790  0.6255884 -0.8985340 -0.16682857 -0.1098153
-## France       -0.9126953 -0.5190822  1.6604940 -0.8683529  1.24376999 -0.7609186
-##              life_expec  total_fer        gdpp
-## Brazil        0.5081259 -0.7688771 -0.04220808
-## India        -0.3567692 -0.2871461 -0.55360310
-## Zambia       -1.8919580  1.3989124 -0.54789209
-## Romania       0.4540699 -0.8953315 -0.19640536
-## South Africa -1.6433007 -0.2931677 -0.24572772
-## France        1.2865314 -0.6303794  1.48418926</code></pre>
+<pre><code>##                child_mort    exports      health    imports     income
+## Yemen           0.4319299 -0.3989661 -0.47513268 -0.5016458 -0.5919272
+## Nigeria         2.2626285 -0.5495781 -0.51043978 -1.0801499 -0.5612256
+## Czech Republic -0.8820994  0.7546576  0.39149612  0.4681995  0.4995816
+## Burkina Faso    1.9148703 -0.7450532  0.02558618 -0.6649881 -0.7316880
+## Guinea          1.7409912 -0.3893526 -0.55537609 -0.2021848 -0.7426856
+## Kiribati        0.5909051 -0.9341193  1.48922593  1.0467036 -0.7179410
+##                 inflation life_expec  total_fer       gdpp
+## Yemen           1.1126158 -0.2621121  1.2745412 -0.6013265
+## Nigeria         7.0733074 -1.0293458  2.1081534 -0.5445361
+## Czech Republic -0.7430572  0.8339360 -0.9769243  0.4281395
+## Burkina Faso   -0.1321604 -1.3143183  2.1295281 -0.6422490
+## Guinea          0.5565812 -1.3033578  1.7519089 -0.6381846
+## Kiribati       -0.5243502 -1.0074248  0.6831752 -0.5913047</code></pre>
 <pre class="r"><code>library(stats)
 res.dist &lt;- dist(x=dataScale, method=&quot;euclidean&quot;)
 res.hc &lt;- hclust(d =res.dist, method=&quot;complete&quot; )</code></pre>
@@ -412,16 +413,39 @@ res.hc &lt;- hclust(d =res.dist, method=&quot;complete&quot; )</code></pre>
 <p>Alternativa de un Venn Diagram, cuando hay varios sets.</p>
 <pre class="r"><code>#if (!require(&quot;UpSetR&quot;)) install.packages(&quot;UpSetR&quot;)
 library(UpSetR)</code></pre>
-<pre class="r"><code>set.seed(20190708)
+<pre class="r"><code>heartData &lt;- read.csv(&quot;heart_2020_cleaned.csv&quot;)[,c(1,3,4,5,8,13,16,17,18)]
+heartData &lt;- heartData[sample(1:300000, 5000), ]
+personas &lt;- paste(&quot;persona&quot;,1:5000,sep=&quot;&quot;)
+rownames(heartData) &lt;- personas
+
+head(heartData,5)</code></pre>
+<pre><code>##          HeartDisease Smoking AlcoholDrinking Stroke DiffWalking
+## persona1           No      No              No     No          No
+## persona2           No      No              No     No          No
+## persona3           No      No              No     No          No
+## persona4          Yes     Yes              No     No          No
+## persona5           No      No              No     No          No
+##          PhysicalActivity Asthma KidneyDisease SkinCancer
+## persona1              Yes     No            No         No
+## persona2              Yes     No            No         No
+## persona3              Yes     No            No         No
+## persona4              Yes     No            No         No
+## persona5               No    Yes            No         No</code></pre>
+<pre class="r"><code>set.seed(200)
 genes &lt;- paste(&quot;gene&quot;,1:1000,sep=&quot;&quot;)
 x &lt;- list(
-  A = sample(genes,300), 
-  B = sample(genes,525), 
-  C = sample(genes,440),
-  D = sample(genes,350)
+  HeartDisease = rownames(heartData[heartData$HeartDisease == &#39;Yes&#39;,]),
+  Smoking = rownames(heartData[heartData$Smoking == &#39;Yes&#39;,]),
+  AlcoholDrinking = rownames(heartData[heartData$AlcoholDrinking == &#39;Yes&#39;,]),
+  Stroke = rownames(heartData[heartData$Stroke == &#39;Yes&#39;,]),
+  DiffWalking = rownames(heartData[heartData$DiffWalking == &#39;Yes&#39;,]),
+  PhysicalActivity = rownames(heartData[heartData$PhysicalActivity == &#39;Yes&#39;,]),
+  Asthma = rownames(heartData[heartData$Asthma == &#39;Yes&#39;,]),
+  KidneyDisease = rownames(heartData[heartData$KidneyDisease == &#39;Yes&#39;,]),
+  SkinCancer = rownames(heartData[heartData$SkinCancer == &#39;Yes&#39;,])
   )</code></pre>
 <pre class="r"><code>upset(fromList(x), order.by = &quot;freq&quot;)</code></pre>
-<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 </div>
 
 
