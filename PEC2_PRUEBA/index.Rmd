@@ -1,26 +1,26 @@
 ---
-title: "My Website"
+title: "PEC 2 - Visualización de datos"
 ---
 
 El objetivo de esta actividad es crear tres pequeñas visualizaciones usando técnicas diferentes, en nuestro han sido: dot-density-map, cicular-dendrogram y UpSet (intersecting sets).
 
 # Dot density map
 
-Los mapas de densidad de puntos son una forma simple de mostrar las diferencias de densidad en las distirbuciiones geográficas en un territorio. Este tipo de visualizaciones fueron y son muy populares, debido a que es fácil de entender e, intuitivamente, podemos ver donde se agrupan los puntos (datos). 
+Los mapas de densidad de puntos son una forma simple de mostrar las diferencias de densidad en las distribuciones geográficas en un territorio. Este tipo de visualizacion fue y es muy popular, debido a que es fácil de entender e, intuitivamente, podemos ver donde se agrupan los puntos (datos). 
 Hay dos tipos de dot-density-map: los uno-a-uno-dot-density-map o uno-a-muchos-dot-density-maps. 
 Un factor crítico de este tipo de visualización es que han de ser dibujados en un mapa que preserve el tamaño de las área, sino se puede llegar a distorsionar la densidad percibida de los puntos. 
 
 Las ventajas de usar este tipo de visualización son:
-  - se puede mapear simples conteos/ratios (por ejemplo, número de coches/coahes por km2)
-  - los datos no necesitan tener vinculado a unidades de eneumeración
+  - se puede mapear simples conteos/ratios (por ejemplo, número de coches/coches por km2)
+  - los datos no necesitan tener vinculado unidades de enumeración
   - funcionan bien en blanco y negro (cuando solo tenemos una clase)
   
-Algunos ejemplos de conjuntos de datos donde podríamos usar este tipo de visualizaciçon:
+Algunos ejemplos de conjuntos de datos que podríamos usar este tipo de visualizacion:
   - distribución de McDonalds en USA (1 punto = 1 McDonald)
   - número de personas, por comarca, Cataluña, 2020 (1 punto 10000 personas)
   - densidad de población por raza/etnia en New York (1 punto 100 personas)
   
-```{r pressure, echo=FALSE, fig.cap="A caption", out.width = '100%'}
+```{r pressure, echo=FALSE, out.width = '50%', fig.align="center"}
 knitr::include_graphics("dotamapex.png")
 ```
   
@@ -36,12 +36,19 @@ Los datos introducidos son cualitativos (por ejemplo, raza/etnia de una persona)
 
 La cantidad de datos no es muy relevante, ya que se puede jugar con la agrupacion de mas de 1 dato en cada punto.
 
+## Implementacion
+
+se ha realizado esta visualización en R. El dataset usado para representar el ejemplo es *Fast Food Restaurants in America* y lo podemos encontrar en: https://www.kaggle.com/datasets/rishidamarla/fast-food-restaurants-in-america/code?resource=download
+
+En este dataset podremos encontrar mas de 10000 diferentes restaurantes fast-food localizados en USA.
+
 ```{r}
 #if (!require("tidyverse")) install.packages("tidyverse")
 #if (!require("sf")) install.packages("sf")
 #if (!require("maps")) install.packages("maps")
 ```
 
+El primer paso para realizar esta visualización es importar las librerias necesaria a RStudio. En este caso, hemos usado *tidyverse*, *sf* y *maps*.
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 library(tidyverse) # metapackage of all tidyverse packages
@@ -49,14 +56,17 @@ library(sf)
 library(maps)
 ```
 
+A continuación, se ha importado los datos del dataset mensionado anteiormente, y los datos geográficos necesarios para representar los Estados Unidos.
+
 ```{r}
 fastRest_raw <- read.csv("FastFoodRestaurants.csv")
 fastRest <- filter(fastRest_raw, longitude > -150 & longitude < -50 & latitude > 23 & latitude < 55)
 states <- st_as_sf(map("state", plot = FALSE, fill = TRUE))
 ```
 
+La figura creada es la siguiente:
 
-```{r}
+```{r fig.align="center"}
 fig <- function(width, height){
      options(repr.plot.width = width, repr.plot.height = height)
 }
@@ -70,4 +80,104 @@ ggplot() + geom_sf(data=states)+
   
   theme(axis.ticks = element_blank(), axis.text = element_blank(), axis.title = element_blank())
 ```
+
+El mapa obtenido muestra la densidad de restaurantes fast-food. Se puede ver que la mayoria de restaurantes fast-food están localizados en el Este de USA, con otro foco en California. Esto ha sido sencillo de visualizar ya que cuanto mas *rojo* sea la zona del mapa significa que más cantidad de restaurantes fast-food hay en ese territorio.
+
+
+# Circular dendrogram
+
+Un dendograma es un diagrama que muestra la relación jerárquica entre objetos. El uso principal de los dendrogramas es encontrar lamejor manera de asignar objetos a los clústeres. Es decir, es una manera de visualizar el cluster asignida a cada datos.Los dendrogramas pueden ayudar a tomar la decisión de cuantos clústeres hay.
+
+La ventaja de usar este tipo de visualización son:
+  - es facil de visualizar los clusteres a un mismo nivel
+  - facil de recuperar datos
+
+Por otro lado, los datos han de ser previamente procesados para realizar correctamente el cálculo de las distancias. Además, una gran cantidad de datos resultaría en una visualización imposible de leer, por lo que este tipo de visualización está pensado para datasets pequeños.
+  
+Algunos ejemplos de conjuntos de datos que podríamos usar este tipo de visualizacion:
+  - clustering de pasises con datos socio-económicos
+  - número de personas, por comarca, Cataluña, 2020 (1 punto 10000 personas)
+  - densidad de población por raza/etnia en New York (1 punto 100 personas)
+
+Los datos usado para representar esta visualización es "Humanitarian Aid to Underdeveloped Countries" de Kaggle, el link es: https://www.kaggle.com/code/shrutidandagi/clustering-of-the-countries-help-international/data.
+
+
+```{r}
+set.seed(200)
+dataDend <- read.csv("Country-data.csv")[sample(1:167, 70), ] 
+dataScale <- dataDend[,2:10]
+```
+
+
+```{r}
+dataScale <- as.data.frame(scale(dataScale))  # Apply scale function
+rownames(dataScale) <- dataDend$country
+head(dataScale)  
+```
+
+
+```{r}
+library(stats)
+res.dist <- dist(x=dataScale, method="euclidean")
+res.hc <- hclust(d =res.dist, method="complete" )
+```
+
+
+```{r}
+library(factoextra)
+fviz_dend(x=res.hc, cex=0.8, lwd=0.8, k=3, 
+          k_colors="jco",
+          type = "circular")
+```
+
+
+# UpSet Plot
+
+Alternativa de un Venn Diagram, cuando hay varios sets.
+
+```{r}
+#if (!require("UpSetR")) install.packages("UpSetR")
+library(UpSetR)
+```
+
+```{r}
+heartData <- read.csv("heart_2020_cleaned.csv")[,c(1,3,4,5,8,13,16,17,18)]
+heartData <- heartData[sample(1:300000, 5000), ]
+personas <- paste("persona",1:5000,sep="")
+rownames(heartData) <- personas
+
+heartData
+
+```
+
+```{r}
+set.seed(20190708)
+genes <- paste("gene",1:1000,sep="")
+x <- list(
+  HeartDisease = rownames(heartData[heartData$HeartDisease == 'Yes',]),
+  Smoking = rownames(heartData[heartData$Smoking == 'Yes',]),
+  AlcoholDrinking = rownames(heartData[heartData$AlcoholDrinking == 'Yes',]),
+  Stroke = rownames(heartData[heartData$Stroke == 'Yes',]),
+  DiffWalking = rownames(heartData[heartData$DiffWalking == 'Yes',]),
+  PhysicalActivity = rownames(heartData[heartData$PhysicalActivity == 'Yes',]),
+  Asthma = rownames(heartData[heartData$Asthma == 'Yes',]),
+  KidneyDisease = rownames(heartData[heartData$KidneyDisease == 'Yes',]),
+  SkinCancer = rownames(heartData[heartData$SkinCancer == 'Yes',])
+  )
+```
+
+```{r}
+
+upset(fromList(x), order.by = "freq")
+
+```
+
+
+
+
+
+
+
+
+
 

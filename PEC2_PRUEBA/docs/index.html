@@ -11,7 +11,7 @@
 
 
 
-<title>My Website</title>
+<title>PEC 2 - Visualización de datos</title>
 
 <script src="site_libs/header-attrs-2.13/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -263,7 +263,7 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">My Website</h1>
+<h1 class="title toc-ignore">PEC 2 - Visualización de datos</h1>
 
 </div>
 
@@ -274,29 +274,24 @@ cicular-dendrogram y UpSet (intersecting sets).</p>
 <div id="dot-density-map" class="section level1">
 <h1>Dot density map</h1>
 <p>Los mapas de densidad de puntos son una forma simple de mostrar las
-diferencias de densidad en las distirbuciiones geográficas en un
-territorio. Este tipo de visualizaciones fueron y son muy populares,
-debido a que es fácil de entender e, intuitivamente, podemos ver donde
-se agrupan los puntos (datos). Hay dos tipos de dot-density-map: los
+diferencias de densidad en las distribuciones geográficas en un
+territorio. Este tipo de visualizacion fue y es muy popular, debido a
+que es fácil de entender e, intuitivamente, podemos ver donde se agrupan
+los puntos (datos). Hay dos tipos de dot-density-map: los
 uno-a-uno-dot-density-map o uno-a-muchos-dot-density-maps. Un factor
 crítico de este tipo de visualización es que han de ser dibujados en un
 mapa que preserve el tamaño de las área, sino se puede llegar a
 distorsionar la densidad percibida de los puntos.</p>
 <p>Las ventajas de usar este tipo de visualización son: - se puede
-mapear simples conteos/ratios (por ejemplo, número de coches/coahes por
-km2) - los datos no necesitan tener vinculado a unidades de eneumeración
-- funcionan bien en blanco y negro (cuando solo tenemos una clase)</p>
-<p>Algunos ejemplos de conjuntos de datos donde podríamos usar este tipo
-de visualizaciçon: - distribución de McDonalds en USA (1 punto = 1
+mapear simples conteos/ratios (por ejemplo, número de coches/coches por
+km2) - los datos no necesitan tener vinculado unidades de enumeración -
+funcionan bien en blanco y negro (cuando solo tenemos una clase)</p>
+<p>Algunos ejemplos de conjuntos de datos que podríamos usar este tipo
+de visualizacion: - distribución de McDonalds en USA (1 punto = 1
 McDonald) - número de personas, por comarca, Cataluña, 2020 (1 punto
 10000 personas) - densidad de población por raza/etnia en New York (1
 punto 100 personas)</p>
-<div class="figure">
-<img src="dotamapex.png" alt="A caption" width="100%" />
-<p class="caption">
-A caption
-</p>
-</div>
+<p><img src="dotamapex.png" width="50%" style="display: block; margin: auto;" /></p>
 <div id="limitaciones" class="section level2">
 <h2>Limitaciones</h2>
 <p>Los principales inconvenientes de esta visualización son: - es
@@ -311,15 +306,32 @@ la latitud y longitud.A parte, de los datos como tal es necesario tener
 un mapa como base para poder representar este tipo de datos.</p>
 <p>La cantidad de datos no es muy relevante, ya que se puede jugar con
 la agrupacion de mas de 1 dato en cada punto.</p>
+</div>
+<div id="implementacion" class="section level2">
+<h2>Implementacion</h2>
+<p>se ha realizado esta visualización en R. El dataset usado para
+representar el ejemplo es <em>Fast Food Restaurants in America</em> y lo
+podemos encontrar en: <a
+href="https://www.kaggle.com/datasets/rishidamarla/fast-food-restaurants-in-america/code?resource=download"
+class="uri">https://www.kaggle.com/datasets/rishidamarla/fast-food-restaurants-in-america/code?resource=download</a></p>
+<p>En este dataset podremos encontrar mas de 10000 diferentes
+restaurantes fast-food localizados en USA.</p>
 <pre class="r"><code>#if (!require(&quot;tidyverse&quot;)) install.packages(&quot;tidyverse&quot;)
 #if (!require(&quot;sf&quot;)) install.packages(&quot;sf&quot;)
 #if (!require(&quot;maps&quot;)) install.packages(&quot;maps&quot;)</code></pre>
+<p>El primer paso para realizar esta visualización es importar las
+librerias necesaria a RStudio. En este caso, hemos usado
+<em>tidyverse</em>, <em>sf</em> y <em>maps</em>.</p>
 <pre class="r"><code>library(tidyverse) # metapackage of all tidyverse packages
 library(sf)
 library(maps)</code></pre>
+<p>A continuación, se ha importado los datos del dataset mensionado
+anteiormente, y los datos geográficos necesarios para representar los
+Estados Unidos.</p>
 <pre class="r"><code>fastRest_raw &lt;- read.csv(&quot;FastFoodRestaurants.csv&quot;)
 fastRest &lt;- filter(fastRest_raw, longitude &gt; -150 &amp; longitude &lt; -50 &amp; latitude &gt; 23 &amp; latitude &lt; 55)
 states &lt;- st_as_sf(map(&quot;state&quot;, plot = FALSE, fill = TRUE))</code></pre>
+<p>La figura creada es la siguiente:</p>
 <pre class="r"><code>fig &lt;- function(width, height){
      options(repr.plot.width = width, repr.plot.height = height)
 }
@@ -332,8 +344,84 @@ ggplot() + geom_sf(data=states)+
   theme(panel.background = element_blank(), panel.grid = element_blank()) +
   
   theme(axis.ticks = element_blank(), axis.text = element_blank(), axis.title = element_blank())</code></pre>
-<p><img src="index_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>El mapa obtenido muestra la densidad de restaurantes fast-food. Se
+puede ver que la mayoria de restaurantes fast-food están localizados en
+el Este de USA, con otro foco en California. Esto ha sido sencillo de
+visualizar ya que cuanto mas <em>rojo</em> sea la zona del mapa
+significa que más cantidad de restaurantes fast-food hay en ese
+territorio.</p>
 </div>
+</div>
+<div id="circular-dendrogram" class="section level1">
+<h1>Circular dendrogram</h1>
+<p>Un dendograma es un diagrama que muestra la relación jerárquica entre
+objetos. El uso principal de los dendrogramas es encontrar lamejor
+manera de asignar objetos a los clústeres. Es decir, es una manera de
+visualizar el cluster asignida a cada datos.Los dendrogramas pueden
+ayudar a tomar la decisión de cuantos clústeres hay.</p>
+<p>La ventaja de usar este tipo de visualización son: - es facil de
+visualizar los clusteres a un mismo nivel - facil de recuperar datos</p>
+<p>Por otro lado, los datos han de ser previamente procesados para
+realizar correctamente el cálculo de las distancias. Además, una gran
+cantidad de datos resultaría en una visualización imposible de leer, por
+lo que este tipo de visualización está pensado para datasets
+pequeños.</p>
+<p>Algunos ejemplos de conjuntos de datos que podríamos usar este tipo
+de visualizacion: - clustering de pasises con datos socio-económicos -
+número de personas, por comarca, Cataluña, 2020 (1 punto 10000 personas)
+- densidad de población por raza/etnia en New York (1 punto 100
+personas)</p>
+<p>Los datos usado para representar esta visualización es “Humanitarian
+Aid to Underdeveloped Countries” de Kaggle, el link es: <a
+href="https://www.kaggle.com/code/shrutidandagi/clustering-of-the-countries-help-international/data"
+class="uri">https://www.kaggle.com/code/shrutidandagi/clustering-of-the-countries-help-international/data</a>.</p>
+<pre class="r"><code>dataDend &lt;- read.csv(&quot;Country-data.csv&quot;)[sample(1:167, 70), ] 
+dataScale &lt;- dataDend[,2:10]</code></pre>
+<pre class="r"><code>dataScale &lt;- as.data.frame(scale(dataScale))  # Apply scale function
+rownames(dataScale) &lt;- dataDend$country
+head(dataScale)  </code></pre>
+<pre><code>##              child_mort    exports     health    imports      income  inflation
+## Brazil       -0.5349424 -1.1344890  0.6500625 -1.5711409 -0.02520221  0.1432550
+## India         0.4094399 -0.6796231 -1.0841035 -0.9114687 -0.59680620  0.2132793
+## Zambia        0.9978627 -0.1291972 -0.4407839 -0.7476285 -0.66082132  0.8299846
+## Romania      -0.7359263 -0.2973829 -0.5491692 -0.4070135  0.16174459 -0.4562514
+## South Africa  0.2859437 -0.4502790  0.6255884 -0.8985340 -0.16682857 -0.1098153
+## France       -0.9126953 -0.5190822  1.6604940 -0.8683529  1.24376999 -0.7609186
+##              life_expec  total_fer        gdpp
+## Brazil        0.5081259 -0.7688771 -0.04220808
+## India        -0.3567692 -0.2871461 -0.55360310
+## Zambia       -1.8919580  1.3989124 -0.54789209
+## Romania       0.4540699 -0.8953315 -0.19640536
+## South Africa -1.6433007 -0.2931677 -0.24572772
+## France        1.2865314 -0.6303794  1.48418926</code></pre>
+<pre class="r"><code>library(stats)
+res.dist &lt;- dist(x=dataScale, method=&quot;euclidean&quot;)
+res.hc &lt;- hclust(d =res.dist, method=&quot;complete&quot; )</code></pre>
+<pre class="r"><code>library(factoextra)</code></pre>
+<pre><code>## Welcome! Want to learn more? See two factoextra-related books at https://goo.gl/ve3WBa</code></pre>
+<pre class="r"><code>fviz_dend(x=res.hc, cex=0.8, lwd=0.8, k=3, 
+          k_colors=&quot;jco&quot;,
+          type = &quot;circular&quot;)</code></pre>
+<pre><code>## Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; =
+## &quot;none&quot;)` instead.</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+</div>
+<div id="upset-plot" class="section level1">
+<h1>UpSet Plot</h1>
+<p>Alternativa de un Venn Diagram, cuando hay varios sets.</p>
+<pre class="r"><code>#if (!require(&quot;UpSetR&quot;)) install.packages(&quot;UpSetR&quot;)
+library(UpSetR)</code></pre>
+<pre class="r"><code>set.seed(20190708)
+genes &lt;- paste(&quot;gene&quot;,1:1000,sep=&quot;&quot;)
+x &lt;- list(
+  A = sample(genes,300), 
+  B = sample(genes,525), 
+  C = sample(genes,440),
+  D = sample(genes,350)
+  )</code></pre>
+<pre class="r"><code>upset(fromList(x), order.by = &quot;freq&quot;)</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 </div>
 
 
